@@ -1,5 +1,5 @@
-function App() {
-  return <h1>привет это фронт</h1>;
-}
+import ProductsPage from "./pages/ProductsPage/ProductsPage";
 
-export default App;
+export default function App() {
+  return <ProductsPage />;
+}
