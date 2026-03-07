@@ -4,6 +4,7 @@ const path = require("path");
 const fs = require("fs");
 const swaggerUi = require("swagger-ui-express");
 const productsRouter = require("./routes/products.js");
+const authRouter = require("./routes/auth.js");
 const openapiSpecification = require("./swagger.js");
 
 const app = express();
@@ -21,6 +22,7 @@ app.use("/uploads", express.static(uploadsDir));
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(openapiSpecification));
 app.use("/api/products", productsRouter);
+app.use("/api/auth", authRouter);
 
 app.get("/api/health", (req, res) => {
   res.json({ ok: true });
