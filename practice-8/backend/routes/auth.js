@@ -2,6 +2,11 @@ const express = require("express");
 const bcrypt = require("bcrypt");
 const users = require("../data/users.js");
 
+const jwt = require("jsonwebtoken");
+const { JWT_SECRET } = require("../configs.js");
+
+const requireAuth = require("../middleware/requireAuth.js");
+
 const router = express.Router();
 const SALT_ROUNDS = 10;
 
@@ -208,15 +213,49 @@ router.post("/login", async (req, res, next) => {
       return res.status(401).json({ message: "Неверный email или пароль" });
     }
 
+    const payload = { userId: user.id };
+    const accessToken = jwt.sign(payload, JWT_SECRET, { expiresIn: "24h" });
+
     res.json({
-      id: user.id,
-      email: user.email,
-      first_name: user.first_name,
-      last_name: user.last_name,
+      accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        first_name: user.first_name,
+        last_name: user.last_name,
+      },
     });
   } catch (err) {
     next(err);
   }
+});
+
+/**
+ * @openapi
+ * /api/auth/me:
+ *   get:
+ *     summary: Текущий пользователь
+ *     description: Возвращает объект пользователя по токену из заголовка Authorization. Без токена или с неверным токеном — 401.
+ *     tags:
+ *       - Auth
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Успех, объект пользователя (без пароля)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       401:
+ *         description: Нет токена или токен недействителен
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorMessage'
+ */
+router.get("/me", requireAuth, (req, res) => {
+  res.json(req.user);
 });
 
 module.exports = router;

@@ -5,6 +5,7 @@ const multer = require("multer");
 
 const router = express.Router();
 const products = require("../data/products.js");
+const requireAuth = require("../middleware/requireAuth.js");
 
 const uploadsDir = path.join(__dirname, "..", "uploads");
 if (!fs.existsSync(uploadsDir)) {
@@ -143,7 +144,7 @@ router.get("/", (req, res) => {
  *                 message:
  *                   type: string
  */
-router.get("/:id", (req, res) => {
+router.get("/:id", requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const product = products.find((p) => p.id === id);
   if (!product) {
@@ -225,7 +226,7 @@ router.post("/", (req, res) => {
  *                 message:
  *                   type: string
  */
-router.put("/:id", (req, res) => {
+router.put("/:id", requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const product = products.find((p) => p.id === id);
   if (!product) {
@@ -268,7 +269,7 @@ router.put("/:id", (req, res) => {
  *                 message:
  *                   type: string
  */
-router.delete("/:id", (req, res) => {
+router.delete("/:id", requireAuth, (req, res) => {
   const id = Number(req.params.id);
   const index = products.findIndex((p) => p.id === id);
   if (index === -1) {
