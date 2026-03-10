@@ -80,6 +80,16 @@ $primaryBg: rgba(99, 102, 241, 0.18);
   opacity: 0.85;
 }
 
+.auth-error {
+  margin-bottom: 10px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid $border;
+  background: rgba(239, 68, 68, 0.14);
+  color: #fecaca;
+  font-size: 13px;
+}
+
 .auth-form {
   display: flex;
   flex-direction: column;

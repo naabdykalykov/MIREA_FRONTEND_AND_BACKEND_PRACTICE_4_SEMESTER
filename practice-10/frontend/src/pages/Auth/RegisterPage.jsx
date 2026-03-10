@@ -1,6 +1,54 @@
+import { useState } from "react";
 import "./AuthPage.scss";
 
-export default function RegisterPage({ onSwitchPage }) {
+export default function RegisterPage({ onSwitchPage, onRegister }) {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const payload = {
+      first_name: firstName.trim(),
+      last_name: lastName.trim(),
+      email: email.trim(),
+      password: password.trim(),
+    };
+
+    if (!payload.first_name || !payload.last_name || !payload.email || !payload.password) {
+      setError("Заполните все обязательные поля");
+      return;
+    }
+
+    if (payload.password.length < 6) {
+      setError("Пароль должен быть не короче 6 символов");
+      return;
+    }
+
+    if (passwordConfirm.trim() !== payload.password) {
+      setError("Пароли не совпадают");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+    try {
+      await onRegister(payload);
+    } catch (err) {
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Ошибка регистрации";
+      setError(message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="auth-page">
       <header className="auth-header">
@@ -13,10 +61,9 @@ export default function RegisterPage({ onSwitchPage }) {
         <div className="auth-container">
           <div className="auth-card">
             <h1 className="auth-title">Создание аккаунта</h1>
-            <p className="auth-subtitle">
-              Заполните поля ниже, чтобы зарегистрироваться в системе.
-            </p>
-            <form className="auth-form">
+            <p className="auth-subtitle">Заполните поля ниже, чтобы зарегистрироваться в системе.</p>
+            {error && <div className="auth-error">{error}</div>}
+            <form className="auth-form" onSubmit={handleSubmit}>
               <label className="auth-label">
                 Имя
                 <input
@@ -24,6 +71,8 @@ export default function RegisterPage({ onSwitchPage }) {
                   type="text"
                   name="first_name"
                   placeholder="Иван"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
                 />
               </label>
               <label className="auth-label">
@@ -33,6 +82,8 @@ export default function RegisterPage({ onSwitchPage }) {
                   type="text"
                   name="last_name"
                   placeholder="Иванов"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
                 />
               </label>
               <label className="auth-label">
@@ -42,6 +93,8 @@ export default function RegisterPage({ onSwitchPage }) {
                   type="email"
                   name="email"
                   placeholder="name@example.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </label>
               <label className="auth-label">
@@ -51,6 +104,8 @@ export default function RegisterPage({ onSwitchPage }) {
                   type="password"
                   name="password"
                   placeholder="Минимум 6 символов"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </label>
               <label className="auth-label">
@@ -60,15 +115,13 @@ export default function RegisterPage({ onSwitchPage }) {
                   type="password"
                   name="passwordConfirm"
                   placeholder="Повторите пароль"
+                  value={passwordConfirm}
+                  onChange={(e) => setPasswordConfirm(e.target.value)}
                 />
               </label>
               <div className="auth-actions">
-                <button
-                  type="button"
-                  className="auth-btn auth-btn--primary"
-                  onClick={onSwitchPage}
-                >
-                  Зарегистрироваться
+                <button type="submit" className="auth-btn auth-btn--primary" disabled={loading}>
+                  {loading ? "Регистрация..." : "Зарегистрироваться"}
                 </button>
                 <div className="auth-alt">
                   Уже есть аккаунт?{" "}
